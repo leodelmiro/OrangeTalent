@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public class TesteInstanciaObjetoCorretamente {
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         Class<SubControle> subControleClasse1 = SubControle.class;
 
@@ -15,15 +15,24 @@ public class TesteInstanciaObjetoCorretamente {
 
         Class<?> controleClasse1 = Class.forName("br.com.alura.alurator.playground.controle.Controle");
 
-        Constructor<SubControle> construtorSubControle = subControleClasse1.getConstructor(); //só publicos
-        Constructor<SubControle> construtorComArgsSubControle = subControleClasse1.getDeclaredConstructor(String.class);
+        try {
+            controleClasse1.getConstructor().newInstance(); //somos obrigados a tratar exceções
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            System.out.println(e.getTargetException());
+        }
 
-        System.out.println(construtorSubControle);
-        System.out.println(construtorComArgsSubControle);
+        controleClasse1.newInstance(); //nao avisa da exceção
 
-        construtorComArgsSubControle.setAccessible(true);
-        Object subControle = construtorComArgsSubControle.newInstance("privado");
-
-        System.out.println(subControle);
+//        Constructor<SubControle> construtorSubControle = subControleClasse1.getConstructor(); //só publicos
+//        Constructor<SubControle> construtorComArgsSubControle = subControleClasse1.getDeclaredConstructor(String.class);
+//
+//        System.out.println(construtorSubControle);
+//        System.out.println(construtorComArgsSubControle);
+//
+//        construtorComArgsSubControle.setAccessible(true);
+//        Object subControle = construtorComArgsSubControle.newInstance("privado");
+//
+//        System.out.println(subControle);
     }
 }

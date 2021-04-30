@@ -1,5 +1,10 @@
 package br.com.alura.alurator;
 
+import br.com.alura.alurator.protocolo.Request;
+import br.com.alura.alurator.reflexao.Reflexao;
+
+import java.lang.reflect.InvocationTargetException;
+
 public class Alurator {
 
 	private String pacoteBase;
@@ -12,21 +17,17 @@ public class Alurator {
 		// TODO - processa a requisicao executando o metodo
 		// da classe em questao
 
-		String[] partesUrl = url.replaceFirst("/", "").split("/");
+		Request request = new Request(url);
 
-		String nomeControle = Character.toUpperCase(partesUrl[0].charAt(0)) + partesUrl[0].substring(1) + "Controller";
+		String nomeControle = request.getNomeControle();
 
-		try {
-			Class<?> classeControle = Class.forName(pacoteBase + nomeControle);
+		Object instanciaControle = new Reflexao()
+				.refleteClasse(pacoteBase + nomeControle)
+				.getConstrutorPadrao()
+				.invoca();
 
-			Object instanciaControle = classeControle.newInstance();
+		System.out.println(instanciaControle);
 
-			System.out.println(instanciaControle);
-
-			return null;
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
+		return null;
 	}
 }

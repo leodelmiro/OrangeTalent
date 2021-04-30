@@ -1,8 +1,10 @@
 package br.com.alura.alurator.playground.controle;
 
-public class SubControle extends Controle{
+public class SubControle extends Controle {
 
-    public SubControle() {}
+    public SubControle() {
+    }
 
-    private SubControle(String s) {}
+    private SubControle(String s) {
+    }
 }
