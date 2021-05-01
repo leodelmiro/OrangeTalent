@@ -1,46 +1,53 @@
 package br.com.alura.alurator;
 
 import br.com.alura.alurator.conversor.ConversorXML;
+import br.com.alura.alurator.ioc.ContainerIoC;
 import br.com.alura.alurator.protocolo.Request;
+import br.com.alura.alurator.reflexao.ManipuladorObjeto;
 import br.com.alura.alurator.reflexao.Reflexao;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 public class Alurator {
 
-	private String pacoteBase;
+    private String pacoteBase;
+    private ContainerIoC container;
 
-	public Alurator(String pacoteBase) {
-		this.pacoteBase = pacoteBase;
-	}
-	
-	public Object executa(String url) {
-		// TODO - processa a requisicao executando o metodo
-		// da classe em questao
+    public Alurator(String pacoteBase) {
+        this.pacoteBase = pacoteBase;
+        this.container = new ContainerIoC();
+    }
 
-		Request request = new Request(url);
+    public Object executa(String url) {
+        // TODO - processa a requisicao executando o metodo
+        // da classe em questao
 
-		String nomeControle = request.getNomeControle();
-		String nomeMetodo = request.getNomeMetodo();
-		Map<String, Object> params = request.getQueryParams();
+        Request request = new Request(url);
 
-		Object retorno = new Reflexao()
-				.refleteClasse(pacoteBase + nomeControle)
-				.criaInstancia()
-				.getMetodo(nomeMetodo, params)
-				.comTratamentoDeExcecao((metodo, ex) -> {
-					System.out.println("Erro no método " + metodo.getName() + "da classe "
-					+ metodo.getDeclaringClass().getName() + ".\n\n");
+        String nomeControle = request.getNomeControle();
+        String nomeMetodo = request.getNomeMetodo();
+        Map<String, Object> params = request.getQueryParams();
 
-					throw new RuntimeException("Erro no método!");
-				})
-				.invoca();
+        Class<?> classeControle = new Reflexao().getClasse(pacoteBase + nomeControle);
+        Object instanciaControle = container.getInstancia(classeControle);
+        Object retorno = new ManipuladorObjeto(instanciaControle)
+                .getMetodo(nomeMetodo, params)
+                .comTratamentoDeExcecao((metodo, ex) -> {
+                    System.out.println("Erro no método " + metodo.getName() + "da classe "
+                            + metodo.getDeclaringClass().getName() + ".\n\n");
 
-		System.out.println(retorno);
+                    throw new RuntimeException("Erro no método!");
+                })
+                .invoca();
 
-		retorno = new ConversorXML().converte(retorno);
+        System.out.println(retorno);
 
-		return retorno;
-	}
+        retorno = new ConversorXML().converte(retorno);
+
+        return retorno;
+    }
+
+    public <T, K extends T> void registra(Class<T> tipoFonte, Class<K> tipoDestino) {
+        container.registra(tipoFonte, tipoDestino);
+    }
 }
